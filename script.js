@@ -7,7 +7,6 @@ const ASSETS = {
   stav:  'assets/stav.png',
   miki:  'assets/miki.png',
   dolls: 'assets/dolls.png',
-  apocalypse: 'assets/apocalypse.png',
   arrow: 'assets/ArrowCircleUpLeft.png',
   logo:  'assets/logo-fattal.png',
   kipud: 'assets/kipud.png',
@@ -16,22 +15,21 @@ const ASSETS = {
 
 /* Artists used by EVENT CARDS and the POPUP (artist photos, names) */
 const ARTISTS = [
-  { key: 'stav',       name: 'סתיו בכל הצבעים',      image: ASSETS.stav },
-  { key: 'yuval',      name: 'יובל המבולבל',           image: ASSETS.yuval },
-  { key: 'eden',       name: 'עדן חסון',                image: ASSETS.eden },
-  { key: 'dolls',      name: 'בית הבובות של גבי',     image: ASSETS.dolls },
-  { key: 'miki',       name: 'מיקי',                    image: ASSETS.miki },
-  { key: 'apocalypse', name: 'אפוקליפסה',              image: ASSETS.apocalypse }
+  { key: 'stav',  name: 'סתיו בכל הצבעים',      image: ASSETS.stav },
+  { key: 'yuval', name: 'יובל המבולבל',           image: ASSETS.yuval },
+  { key: 'eden',  name: 'עדן חסון',                image: ASSETS.eden },
+  { key: 'dolls', name: 'בית הבובות של גבי',     image: ASSETS.dolls },
+  { key: 'miki',  name: 'מיקי',                    image: ASSETS.miki }
 ];
 
 /* Pre-styled CIRCLE images used in the top carousel (each PNG is a
    complete circular composition — background + photo + name).
    Display order specified by client: Circle2, Circle1, Circle3, Circle4, Circle5. */
 const CIRCLES = [
-  { src: 'assets/Circle2.png', name: 'סתיו בכל הצבעים' },
   { src: 'assets/Circle1.png', name: 'עדן חסון' },
+  { src: 'assets/Circle2.png', name: 'מיקי' },
   { src: 'assets/Circle3.png', name: 'יובל המבולבל' },
-  { src: 'assets/Circle4.png', name: 'מיקי' },
+  { src: 'assets/Circle4.png', name: 'סתיו בכל הצבעים' },
   { src: 'assets/Circle5.png', name: 'בית הבובות של גבי' }
 ];
 
@@ -63,7 +61,7 @@ const CITIES = {
    ===================================================== */
 const EVENTS = [
   /* ---------- אילת ---------- */
-  { city: 'eilat', date: '3.8', day: 'שני', artistKey: 'apocalypse', slots: [
+  { city: 'eilat', date: '3.8', day: 'שני', artistKey: 'yuval', slots: [
     { time: '12:00', hotels: 'לאונרדו פלאזה' },
     { time: '14:30', hotels: 'לאונרדו קלאב, לאונרדו רויאל ריזורט, לאונרדו פריווילג\' (מיקום: לאונרדו קלאב)' },
     { time: '17:00', hotels: 'הרודס' },

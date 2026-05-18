@@ -57,6 +57,11 @@ html, body {
 }
 
 body { padding-bottom: 90px; }
+@media (max-width: 767px) {
+  body {
+    padding-bottom: 140px;
+  }
+}
 
 img { max-width: 100%; display: block; }
 button { font-family: inherit; cursor: pointer; }
@@ -227,7 +232,8 @@ a { text-decoration: none; color: inherit; }
      never visible at the viewport edge. */
   width: calc(var(--set-width) * 3);
   direction: ltr;
-  animation: marquee var(--carousel-speed) linear infinite;
+  /* 2s delay before the carousel starts moving, then linear infinite. */
+  animation: marquee var(--carousel-speed) 2s linear infinite;
   will-change: transform;
 }
 
@@ -239,10 +245,12 @@ a { text-decoration: none; color: inherit; }
 
 /* Translate by EXACTLY one set width (in px) every cycle. When the cycle
    resets, the clone of item #1 is sitting at the same pixel position as
-   the real item #1, so the jump is invisible — true seamless loop. */
+   the real item #1, so the jump is invisible — true seamless loop.
+   Direction reversed: track starts shifted left and animates back to 0,
+   making items appear to move RIGHT (new items enter from the left). */
 @keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(calc(-1 * var(--set-width))); }
+  from { transform: translateX(calc(-1 * var(--set-width))); }
+  to   { transform: translateX(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
