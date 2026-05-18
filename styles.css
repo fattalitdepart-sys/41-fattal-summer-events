@@ -1,0 +1,1000 @@
+/* ============================================
+   Design tokens (from Figma)
+   ============================================ */
+:root {
+  --color-primary: #1A2855;
+  --color-primary-blue: #0271E0;
+  --color-light-blue: #7FCFFF;
+  --color-card-cyan: #BFE2F8;
+  --color-light-blue-bg: rgba(127, 207, 255, 0.2);
+  --color-yellow: #FFDA20;
+  --color-orange: #FFA66B;
+  --color-pink: #FF9CCB;
+  --color-black: #050812;
+  --color-white: #FFFFFF;
+  --color-gray-light: #EDEEF2;
+  --color-gray-border: #ADADAD;
+  --color-row-divider: #F3F3F3;
+
+  --font-base: 'Assistant', 'Heebo', -apple-system, system-ui, sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 36px;
+
+  --container-max: 1200px;
+  --carousel-speed: 30s;
+  --carousel-gap: 16px;
+
+  /* Carousel math (must match values below):
+     width of one item = --circle-w, gap after = --carousel-gap,
+     so each item occupies --item-pitch (= circle-w + gap).
+     5 items in CIRCLES → one full set = 5 × pitch.
+     Track renders the set TWICE for seamless loop. */
+  --circle-w: 170px;
+  --circle-h: 200px;
+  --item-pitch: calc(var(--circle-w) + var(--carousel-gap));
+  --circle-count: 5;
+  --set-width: calc(var(--item-pitch) * var(--circle-count));
+}
+
+/* ============================================
+   Reset & base
+   ============================================ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-white);
+  color: var(--color-black);
+  font-family: var(--font-base);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body { padding-bottom: 90px; }
+
+img { max-width: 100%; display: block; }
+button { font-family: inherit; cursor: pointer; }
+ul { list-style: none; padding: 0; margin: 0; }
+a { text-decoration: none; color: inherit; }
+
+.container {
+  width: 100%;
+  max-width: 375px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ============================================
+   Header
+   ============================================ */
+.site-header {
+  background: var(--color-white);
+  /* No visible separator — design has a clean transition into the
+     blue hero gradient below. */
+  border-bottom: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.header-inner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-primary);
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  direction: ltr;
+}
+
+.logo-img {
+  height: 32px;
+  width: auto;
+  display: block;
+}
+
+/* Fallback inline-SVG logo, shown only if logo-fattal.png is missing */
+.logo-fallback {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  direction: ltr;
+}
+
+.logo-fattal {
+  font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
+  font-size: 30px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+.logo-heart {
+  width: 22px;
+  height: 22px;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.logo-tagline {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: 0;
+  margin-bottom: 2px;
+}
+
+/* ============================================
+   Hero
+   ============================================ */
+.hero {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--color-primary);
+  /* Mobile: clean white background. Circles below have their own
+     baked-in colored backgrounds, so the page stays neutral here.
+     Desktop overrides this with HeaderBackground.png further down. */
+  background: var(--color-white);
+}
+
+.hero h1 {
+  font-size: 32px;
+  line-height: 1.3;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.hero-subtitle {
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 700;
+  margin: 0 0 16px;
+}
+
+.hero-description {
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 400;
+  margin: 0 auto;
+  max-width: 420px;
+}
+
+/* Mobile shows the short generic description; desktop shows the long
+   list-of-artists version. Toggle handled per breakpoint. */
+.hero-description-mobile { display: block; }
+.hero-description-desktop { display: none; }
+
+/* ============================================
+   Circles carousel (mobile = infinite marquee)
+   ============================================ */
+.circles-section {
+  padding: 16px 0 32px;
+  /* Mobile: clean white — each Circle*.png has its own coloured circle,
+     and the artist name appears beneath in dark text on white. */
+  background: var(--color-white);
+}
+
+/* Desktop hero composite (hidden on mobile) */
+.hero-artists { display: none; }
+
+.circles-marquee {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  /* CRITICAL: force LTR here. The document is RTL, which makes overflowing
+     children anchor to the RIGHT edge of the parent. That's wrong for a
+     left-moving marquee: as the track translates left, empty space appears
+     on the right and the loop visibly "ends". With LTR, the track anchors
+     to the LEFT edge, its long body extends to the right off-screen, and
+     items keep flowing in from the right as the animation moves left. */
+  direction: ltr;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 60px,
+    #000 calc(100% - 60px),
+    transparent 100%
+  );
+          mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 60px,
+    #000 calc(100% - 60px),
+    transparent 100%
+  );
+}
+
+.circles-track {
+  display: flex;
+  /* THREE full sets rendered. Animation only translates by ONE set
+     width, so the loop "seam" stays in the middle of the track and is
+     never visible at the viewport edge. */
+  width: calc(var(--set-width) * 3);
+  direction: ltr;
+  animation: marquee var(--carousel-speed) linear infinite;
+  will-change: transform;
+}
+
+/* Only pause on hover for actual pointer devices (mouse). On touch
+   screens the :hover state can stick after a tap and stop the carousel. */
+@media (hover: hover) and (pointer: fine) {
+  .circles-track:hover { animation-play-state: paused; }
+}
+
+/* Translate by EXACTLY one set width (in px) every cycle. When the cycle
+   resets, the clone of item #1 is sitting at the same pixel position as
+   the real item #1, so the jump is invisible — true seamless loop. */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-1 * var(--set-width))); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .circles-track { animation: none; }
+}
+
+.circle-item {
+  flex: 0 0 var(--circle-w);
+  width: var(--circle-w);
+  margin-inline-end: var(--carousel-gap);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.circle {
+  width: var(--circle-w);
+  height: var(--circle-w);
+  position: relative;
+}
+
+.circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Artist name under each circle (mobile carousel only) */
+.circle-name {
+  font-size: 18px;
+  line-height: 1.1;
+  font-weight: 700;
+  color: var(--color-black);
+  text-align: center;
+  white-space: nowrap;
+  /* Override marquee track's `direction: ltr` so Hebrew renders RTL */
+  direction: rtl;
+}
+
+/* ============================================
+   Advantages
+   ============================================ */
+.advantages {
+  background: var(--color-light-blue-bg);
+  padding: 42px 0;
+}
+
+.advantages-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 42px;
+  text-align: center;
+}
+
+.advantage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.advantage-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+}
+
+.advantage p {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.22;
+  color: var(--color-black);
+  max-width: 320px;
+}
+
+.advantage strong { font-weight: 700; }
+
+/* ============================================
+   Schedule
+   ============================================ */
+.schedule { padding-top: 20px; }
+
+.schedule-title {
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+  color: var(--color-black);
+}
+
+.city-filters {
+  background: var(--color-white);
+  position: sticky;
+  top: 64px;
+  z-index: 40;
+  padding: 12px 0;
+  margin-top: 4px;
+}
+
+.filters-inner {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.chip {
+  border: 1px solid var(--color-primary);
+  background: var(--color-white);
+  color: var(--color-primary);
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.chip:hover { background: rgba(26, 40, 85, 0.06); }
+
+.chip.is-active {
+  background: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+}
+
+/* ============================================
+   Event cards
+   ============================================ */
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 16px 0 24px;
+}
+
+.event-card {
+  position: relative;
+  width: 100%;
+  height: 142px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background-color: var(--color-card-cyan);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 0;
+  padding: 0;
+  font-family: inherit;
+  text-align: right;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(2, 113, 224, 0.18);
+}
+
+.event-image-wrap {
+  position: absolute;
+  inset-inline-end: 0;
+  bottom: 0;
+  width: 160px;
+  height: 150px;
+  z-index: 1;
+}
+
+/* Yuval and Stav have wider natural poses (arms outstretched) so cover
+   would crop them on the sides. Use `contain` with bottom alignment so
+   the full pose is visible and their feet sit on the card's bottom edge. */
+.event-card[data-artist="yuval"] .event-image,
+.event-card[data-artist="stav"] .event-image {
+  object-fit: contain;
+  object-position: bottom center;
+}
+
+.event-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  pointer-events: none;
+}
+
+.event-arrow {
+  position: absolute;
+  top: 12px;
+  inset-inline-end: 12px;
+  width: 40px;
+  height: 40px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.event-arrow img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.event-date {
+  position: absolute;
+  top: 8px;
+  inset-inline-start: 8px;
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  width: 52px;
+  height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  font-weight: 600;
+  text-align: center;
+  line-height: 1;
+  z-index: 2;
+}
+
+.event-date .month { font-size: 16px; }
+.event-date .day { font-size: 24px; font-weight: 700; }
+
+.event-name {
+  position: absolute;
+  bottom: 12px;
+  inset-inline-start: 14px;
+  z-index: 2;
+  color: var(--color-white);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.05;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45), 0 0 20px rgba(0, 0, 0, 0.35);
+  max-width: 55%;
+  text-align: right;
+}
+
+/* ============================================
+   Kipud cube ("בכל מופעי הילדים יופיע גם קיפוד")
+   Always rendered, regardless of city filter.
+   ============================================ */
+.event-kipud-wrap {
+  list-style: none;
+  /* Don't stretch to the row height in the desktop grid — the cube
+     stays compact at the design's proportions even when the row has
+     taller event cards next to it. */
+  align-self: start;
+}
+
+.event-kipud {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  min-height: 120px;
+  /* RTL: small padding everywhere; character image overflows visually */
+  padding: 10px 20px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F4F7FC 100%);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+/* Right-side content stack: explanation text + colorful "קיפוד" wordmark */
+.kipud-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;       /* RTL: aligns to RIGHT physically */
+  justify-content: center;
+  gap: 6px;
+  flex: 0 1 auto;
+  min-width: 0;
+  text-align: right;
+}
+
+.kipud-text {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-black);
+  line-height: 1.25;
+}
+
+.kipud-wordmark {
+  height: 47px;
+  width: auto;
+  display: block;
+}
+
+/* Left-side big character (hugs the left edge of the card) */
+.kipud-character {
+  flex: 0 0 auto;
+  height: 110px;
+  width: auto;
+  display: block;
+  align-self: center;
+  /* slight negative margin so it sits flush with the left edge */
+  margin-inline-end: -12px;
+}
+
+/* Fallback if a kipud image is missing */
+.kipud-fallback {
+  display: inline-grid;
+  place-items: center;
+  height: 56px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #FFA66B 0%, #FFDA20 100%);
+  color: var(--color-primary);
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(255, 166, 107, 0.4);
+}
+
+/* ============================================
+   Inline CTA banner (visible on desktop, hidden on mobile)
+   ============================================ */
+.inline-cta {
+  display: none;
+}
+
+/* ============================================
+   FAQ
+   ============================================ */
+.faq {
+  padding: 24px 0;
+  border-top: 1px solid var(--color-gray-light);
+  margin-top: 24px;
+}
+
+.faq-title {
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 600;
+  text-align: center;
+  margin: 0 0 14px;
+  color: var(--color-black);
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.faq-item {
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-light);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.faq-question {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: right;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-black);
+  line-height: 1.5;
+}
+
+.faq-question > span:last-child { flex: 1; }
+
+.faq-arrow {
+  display: grid;
+  place-items: center;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.faq-item.is-open .faq-arrow { transform: rotate(180deg); }
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  padding: 0 16px;
+  color: var(--color-black);
+}
+
+.faq-answer p { margin: 0 0 16px; line-height: 1.55; }
+
+.faq-item.is-open .faq-answer {
+  max-height: 240px;
+  padding-top: 4px;
+}
+
+/* ============================================
+   Sticky bottom CTA (mobile-only)
+   ============================================ */
+.sticky-cta {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--color-white);
+  padding: 12px 0 16px;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+  z-index: 60;
+}
+
+.cta-button {
+  display: block;
+  background: var(--color-primary-blue);
+  color: var(--color-white);
+  text-align: center;
+  padding: 14px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.2;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+.cta-button:hover { background: #0156b0; }
+.cta-button:active { transform: scale(0.99); }
+
+/* ============================================
+   Popup
+   - Mobile: bottom sheet (slides up from below, dims screen)
+   - Desktop: centered modal (overlay dims, modal in middle)
+   ============================================ */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.popup-overlay.is-open { opacity: 1; }
+.popup-overlay[hidden] { display: none; }
+
+.popup-sheet {
+  background: var(--color-white);
+  width: 100%;
+  max-width: 500px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 16px;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.popup-overlay.is-open .popup-sheet { transform: translateY(0); }
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 21px;
+  height: 64px;
+  gap: 16px;
+}
+
+.popup-close {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.popup-close:hover { background: rgba(0, 0, 0, 0.05); }
+
+.popup-title {
+  font-size: 22px;
+  line-height: 1.25;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-black);
+  text-align: right;
+  flex: 1;
+}
+
+.popup-table {
+  width: 100%;
+  font-size: 16px;
+  line-height: 26px;
+  color: var(--color-black);
+}
+
+.popup-row {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px 18px;
+  text-align: right;
+  gap: 12px;
+}
+
+.popup-row + .popup-row {
+  border-top: 1px solid var(--color-row-divider);
+}
+
+.popup-row-head {
+  border-top: 0;
+  font-weight: 700;
+}
+
+.popup-cell-hotel {
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+.popup-cell-time {
+  width: 70px;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+.popup-row-head .popup-cell-hotel,
+.popup-row-head .popup-cell-time { font-weight: 700; }
+
+.popup-row:not(.popup-row-head) .popup-cell-hotel { font-weight: 600; }
+
+.popup-cta { padding: 0 16px; }
+
+body.popup-open { overflow: hidden; }
+
+/* ============================================
+   Tablet (≥ 768px)
+   ============================================ */
+@media (min-width: 768px) {
+  .container { max-width: 720px; padding: 0 24px; }
+
+  body { padding-bottom: 0; }
+
+  .site-header { height: 80px; }
+  .logo-img { height: 38px; }
+
+  /* Desktop: HeaderBackground covers the whole hero-area. Text on top,
+     artists composite stacks below it. Simple, no absolute positioning. */
+  .hero-area {
+    background:
+      url('assets/HeaderBackground.png') center top / cover no-repeat,
+      #7FB8E0;
+  }
+  .hero {
+    padding: 56px 0 0;
+    background: transparent;
+  }
+  .hero h1 { font-size: 48px; }
+  .hero-subtitle { font-size: 26px; margin-bottom: 20px; }
+  .hero-description { font-size: 18px; max-width: 700px; }
+  .hero-description-mobile { display: none; }
+  .hero-description-desktop { display: block; }
+
+  .circles-section {
+    padding: 0;
+    background: transparent;
+    overflow: hidden;
+    /* Remove any inline-whitespace gap below the <picture> element */
+    font-size: 0;
+    line-height: 0;
+  }
+  .circles-marquee { display: none; }
+
+  /* Artists composite renders at its natural size, no cropping. */
+  .hero-artists {
+    display: block;
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    line-height: 0;
+  }
+  .hero-artists img {
+    width: 100%;
+    height: auto;
+    display: block;
+    vertical-align: bottom;
+  }
+
+  /* Fallback: if hero-artists.png isn't there yet, force the marquee back on */
+  body.no-hero-img .circles-section {
+    background: linear-gradient(180deg, #E8F3FF 0%, #BFE2F8 100%);
+    padding: 24px 0 48px;
+  }
+  body.no-hero-img .circles-marquee {
+    display: block;
+    overflow: visible;
+    -webkit-mask-image: none;
+            mask-image: none;
+  }
+  body.no-hero-img .circles-track {
+    animation: none;
+    width: auto;
+    direction: rtl;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 0 12px;
+    padding: 0 24px;
+  }
+  body.no-hero-img .circle-item {
+    margin-inline-end: 0;
+    width: auto;
+    gap: 0;
+  }
+  body.no-hero-img .circle-item[aria-hidden="true"] { display: none; }
+  body.no-hero-img .circle {
+    width: 180px;
+    height: 210px;
+  }
+
+  .advantages { padding: 56px 0; }
+  .advantages-grid {
+    flex-direction: row;
+    gap: 32px;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .advantage { flex: 1; }
+
+  .schedule { padding-top: 48px; }
+  .schedule-title { font-size: 28px; }
+
+  .city-filters {
+    position: static;
+    padding: 16px 0 24px;
+  }
+  .filters-inner { gap: 12px; justify-content: center; }
+
+  .event-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    padding: 8px 0 24px;
+  }
+
+  /* Kipud cube takes one grid cell (NOT spanning) — matches Figma */
+  .event-kipud {
+    min-height: 142px;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+  .kipud-content { gap: 4px; }
+  .kipud-text {
+    font-size: 14px;
+    max-width: 130px;
+    line-height: 1.2;
+    text-align: right;
+  }
+  .kipud-wordmark { height: 36px; }
+  .kipud-character { height: 120px; margin-inline-end: -8px; }
+
+  /* Inline CTA banner appears on tablet/desktop */
+  .inline-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    background: var(--color-light-blue-bg);
+    border-radius: var(--radius-md);
+    padding: 18px 24px;
+    margin: 24px 0 16px;
+  }
+  .inline-cta-text {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-black);
+    flex: 1;
+    text-align: right;
+  }
+  .inline-cta-btn {
+    flex: 0 0 auto;
+    min-width: 260px;
+    max-width: none;
+  }
+
+  .faq { padding: 48px 0 64px; margin-top: 0; border-top: 0; }
+  .faq-title { font-size: 28px; margin-bottom: 24px; }
+
+  /* Hide sticky bottom CTA on tablet/desktop (replaced by inline banner) */
+  .sticky-cta { display: none; }
+
+  /* Popup becomes centered modal on tablet/desktop */
+  .popup-overlay {
+    align-items: center;
+    padding: 24px;
+  }
+  .popup-sheet {
+    width: auto;
+    max-width: 720px;
+    border-radius: var(--radius-md);
+    transform: translateY(20px) scale(0.96);
+    transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.25s ease;
+    opacity: 0;
+    padding-bottom: 24px;
+  }
+  .popup-overlay.is-open .popup-sheet {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  .popup-header { padding: 16px 28px; height: auto; }
+  .popup-title { font-size: 28px; }
+  .popup-table { font-size: 17px; }
+  .popup-row { padding: 14px 28px; }
+  .popup-cta { padding: 8px 28px 0; }
+  .popup-cta .cta-button { max-width: 100%; }
+}
+
+/* ============================================
+   Desktop (≥ 1024px)
+   ============================================ */
+@media (min-width: 1024px) {
+  .container { max-width: var(--container-max); padding: 0 32px; }
+
+  .hero { padding: 64px 0 0; }
+  .hero h1 { font-size: 56px; }
+  .hero-subtitle { font-size: 28px; }
+  .hero-description { font-size: 20px; }
+
+  .circles-section { padding: 0; }
+  .circles-track { gap: 0 8px; padding: 0 40px; }
+  .circle { width: 200px; height: 240px; }
+
+  .event-list {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .event-card { height: 170px; }
+  .event-image-wrap { width: 190px; height: 180px; }
+  .event-name { font-size: 24px; }
+
+  .event-kipud { min-height: 170px; padding: 12px 16px; gap: 12px; }
+  .kipud-text { font-size: 16px; max-width: 150px; }
+  .kipud-wordmark { height: 42px; }
+  .kipud-character { height: 150px; margin-inline-end: -10px; }
+}
