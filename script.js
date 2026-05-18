@@ -7,6 +7,7 @@ const ASSETS = {
   stav:  'assets/stav.png',
   miki:  'assets/miki.png',
   dolls: 'assets/dolls.png',
+  apocalypse: 'assets/apocalypse.png',
   arrow: 'assets/ArrowCircleUpLeft.png',
   logo:  'assets/logo-fattal.png',
   kipud: 'assets/kipud.png',
@@ -15,11 +16,12 @@ const ASSETS = {
 
 /* Artists used by EVENT CARDS and the POPUP (artist photos, names) */
 const ARTISTS = [
-  { key: 'stav',  name: 'סתיו בכל הצבעים',      image: ASSETS.stav },
-  { key: 'yuval', name: 'יובל המבולבל',           image: ASSETS.yuval },
-  { key: 'eden',  name: 'עדן חסון',                image: ASSETS.eden },
-  { key: 'dolls', name: 'בית הבובות של גבי',     image: ASSETS.dolls },
-  { key: 'miki',  name: 'מיקי',                    image: ASSETS.miki }
+  { key: 'stav',       name: 'סתיו בכל הצבעים',      image: ASSETS.stav },
+  { key: 'yuval',      name: 'יובל המבולבל',           image: ASSETS.yuval },
+  { key: 'eden',       name: 'עדן חסון',                image: ASSETS.eden },
+  { key: 'dolls',      name: 'בית הבובות של גבי',     image: ASSETS.dolls },
+  { key: 'miki',       name: 'מיקי',                    image: ASSETS.miki },
+  { key: 'apocalypse', name: 'אפוקליפסה',              image: ASSETS.apocalypse }
 ];
 
 /* Pre-styled CIRCLE images used in the top carousel (each PNG is a
@@ -61,7 +63,7 @@ const CITIES = {
    ===================================================== */
 const EVENTS = [
   /* ---------- אילת ---------- */
-  { city: 'eilat', date: '3.8', day: 'שני', artistKey: 'yuval', slots: [
+  { city: 'eilat', date: '3.8', day: 'שני', artistKey: 'apocalypse', slots: [
     { time: '12:00', hotels: 'לאונרדו פלאזה' },
     { time: '14:30', hotels: 'לאונרדו קלאב, לאונרדו רויאל ריזורט, לאונרדו פריווילג\' (מיקום: לאונרדו קלאב)' },
     { time: '17:00', hotels: 'הרודס' },
