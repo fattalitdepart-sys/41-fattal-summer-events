@@ -201,60 +201,25 @@ a { text-decoration: none; color: inherit; }
 .circles-marquee {
   position: relative;
   width: 100%;
-  overflow: hidden;
-  /* CRITICAL: force LTR here. The document is RTL, which makes overflowing
-     children anchor to the RIGHT edge of the parent. That's wrong for a
-     left-moving marquee: as the track translates left, empty space appears
-     on the right and the loop visibly "ends". With LTR, the track anchors
-     to the LEFT edge, its long body extends to the right off-screen, and
-     items keep flowing in from the right as the animation moves left. */
-  direction: ltr;
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    #000 60px,
-    #000 calc(100% - 60px),
-    transparent 100%
-  );
-          mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    #000 60px,
-    #000 calc(100% - 60px),
-    transparent 100%
-  );
+  /* Horizontal swipe / scroll. The user controls the carousel manually
+     — no auto-animation. Native touch scrolling on mobile, mouse wheel
+     and click-drag on desktop. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  /* Hide the visible scrollbar across browsers */
+  scrollbar-width: none;            /* Firefox */
+  -ms-overflow-style: none;         /* IE / legacy Edge */
 }
+.circles-marquee::-webkit-scrollbar { display: none; }  /* Chrome / Safari */
 
 .circles-track {
   display: flex;
-  /* THREE full sets rendered. Animation only translates by ONE set
-     width, so the loop "seam" stays in the middle of the track and is
-     never visible at the viewport edge. */
-  width: calc(var(--set-width) * 3);
-  direction: ltr;
-  /* 2s delay before the carousel starts moving, then linear infinite. */
-  animation: marquee var(--carousel-speed) 2s linear infinite;
-  will-change: transform;
-}
-
-/* Only pause on hover for actual pointer devices (mouse). On touch
-   screens the :hover state can stick after a tap and stop the carousel. */
-@media (hover: hover) and (pointer: fine) {
-  .circles-track:hover { animation-play-state: paused; }
-}
-
-/* Translate by EXACTLY one set width (in px) every cycle. When the cycle
-   resets, the clone of item #1 is sitting at the same pixel position as
-   the real item #1, so the jump is invisible — true seamless loop.
-   Direction reversed: track starts shifted left and animates back to 0,
-   making items appear to move RIGHT (new items enter from the left). */
-@keyframes marquee {
-  from { transform: translateX(calc(-1 * var(--set-width))); }
-  to   { transform: translateX(0); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .circles-track { animation: none; }
+  width: max-content;
+  /* RTL: the first DOM item (Eden Hasson) renders flush with the RIGHT
+     edge of the screen. Items extend leftward; the user swipes to reveal
+     the rest. */
+  direction: rtl;
 }
 
 .circle-item {
@@ -280,6 +245,24 @@ a { text-decoration: none; color: inherit; }
   display: block;
 }
 
+/* DreamWorks copyright overlay on the Gabby's Dollhouse circle (mobile carousel) */
+.circle-copyright {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  color: #FFFFFF;
+  font-size: 7px;
+  line-height: 1.2;
+  text-align: center;
+  font-weight: 400;
+  direction: ltr;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  padding: 0 6px;
+}
+
 /* Artist name under each circle (mobile carousel only) */
 .circle-name {
   font-size: 18px;
@@ -288,7 +271,7 @@ a { text-decoration: none; color: inherit; }
   color: var(--color-black);
   text-align: center;
   white-space: nowrap;
-  /* Override marquee track's `direction: ltr` so Hebrew renders RTL */
+  /* Hebrew text renders RTL */
   direction: rtl;
 }
 
@@ -425,11 +408,16 @@ a { text-decoration: none; color: inherit; }
 
 /* Yuval and Stav have wider natural poses (arms outstretched) so cover
    would crop them on the sides. Use `contain` with bottom alignment so
-   the full pose is visible and their feet sit on the card's bottom edge. */
+   the full pose is visible. Scale them up by 20% anchored at the bottom
+   center: the artist's feet stay flush with the card's bottom edge while
+   the rest of the body grows upward (and slightly outward). Anything
+   that exceeds the card boundary is clipped by overflow: hidden. */
 .event-card[data-artist="yuval"] .event-image,
 .event-card[data-artist="stav"] .event-image {
   object-fit: contain;
   object-position: bottom center;
+  transform: scale(1.2);
+  transform-origin: bottom center;
 }
 
 .event-image {
@@ -438,6 +426,28 @@ a { text-decoration: none; color: inherit; }
   object-fit: cover;
   object-position: top center;
   pointer-events: none;
+}
+
+/* DreamWorks copyright overlay on the Gabby's Dollhouse card image */
+.event-copyright {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  color: #FFFFFF;
+  font-size: 8.4px;
+  line-height: 1.2;
+  text-align: center;
+  font-weight: 400;
+  direction: ltr;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  padding: 0 4px;
+}
+
+@media (min-width: 768px) {
+  .event-copyright { font-size: 9.6px; bottom: 8px; }
 }
 
 .event-arrow {
@@ -840,12 +850,38 @@ body.popup-open { overflow: hidden; }
     max-width: 1440px;
     margin: 0 auto;
     line-height: 0;
+    position: relative;
   }
   .hero-artists img {
     width: 100%;
     height: auto;
     display: block;
     vertical-align: bottom;
+  }
+
+  /* DreamWorks copyright overlay on the Gabby's Dollhouse character
+     inside hero-artists.png. Positioned with a percentage anchor for
+     responsive scaling, then nudged left by 150px to sit directly
+     under Gabby. Layered text-shadow gives the small white text
+     enough contrast against the light-blue composite. */
+  .hero-artists-copyright {
+    position: absolute;
+    bottom: 3%;
+    left: 67%;
+    transform: translateX(calc(-50% - 150px));
+    color: #FFFFFF;
+    font-size: 11px;
+    line-height: 1.25;
+    text-align: center;
+    font-weight: 400;
+    direction: ltr;
+    letter-spacing: 0.02em;
+    text-shadow:
+      0 0 4px rgba(0, 0, 0, 0.75),
+      0 1px 3px rgba(0, 0, 0, 0.85),
+      0 0 1px rgba(0, 0, 0, 0.9);
+    pointer-events: none;
+    white-space: nowrap;
   }
 
   /* Fallback: if hero-artists.png isn't there yet, force the marquee back on */

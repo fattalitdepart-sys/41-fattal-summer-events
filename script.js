@@ -39,20 +39,30 @@ const CIRCLES = [
 const CITIES = {
   eilat: {
     name: 'אילת',
-    ctaShort: 'בחירת מלון לחופשת קיץ באילת',
+    ctaBook: 'בחירת מלון לחופשת קיץ באילת',
     dealUrl: 'https://www.fattal.co.il/deals/city/eilat-deals'
   },
   tiberias: {
     name: 'טבריה',
-    ctaShort: 'בחירת מלון לחופשת קיץ בטבריה',
+    ctaBook: 'בחירת מלון לחופשת קיץ בטבריה',
     dealUrl: 'https://www.fattal.co.il/deals/city/tiberias-deals'
   },
   'dead-sea': {
     name: 'ים המלח',
-    ctaShort: 'בחירת מלון לחופשת קיץ בים המלח',
+    ctaBook: 'בחירת מלון לחופשת קיץ בים המלח',
     dealUrl: 'https://www.fattal.co.il/city/dead-sea-hotels'
   }
 };
+
+/* When the user hasn't yet seen the schedule, the CTA invites them to
+   view it. Once they've scrolled the schedule into view, the CTA flips
+   into a city-specific "Book a hotel" call to action. */
+const CTA_SCROLL_TEXT = 'לצפייה בלוח ההופעות';
+
+/* Tracks whether the schedule section is currently visible in the
+   viewport. Updated by an IntersectionObserver in setupCtaBehavior. */
+let scheduleVisible = false;
+let currentCity = 'eilat';
 
 /* =====================================================
    Real events from the Google Sheet (single source of truth).
@@ -191,37 +201,33 @@ function formatMonthShort(month) {
 }
 
 /* =====================================================
-   Render: circles carousel (true infinite marquee on mobile)
-   The CIRCLES list is rendered TWICE so that translateX(-50%) lands
-   exactly on the start of the duplicate set — when the animation
-   restarts at 0% the picture is identical to where it left off,
-   making the loop perfectly seamless (no jump, no gap).
+   Render: swipeable circles carousel
+   The CIRCLES list is rendered ONCE. The container uses overflow-x:
+   auto + direction: rtl, so the first DOM item (Eden Hasson) sits
+   flush with the right edge of the screen, and the user swipes/drags
+   horizontally to reveal the remaining circles. No auto-animation.
    ===================================================== */
 function renderCircles() {
   const track = document.getElementById('circlesTrack');
   if (!track) return;
 
-  /* Total sets rendered. Animation translates by exactly ONE set width,
-     so any extra sets are pure visual buffer that keeps the loop point
-     hidden in the middle of the track (never at the visible edge). */
-  const SET_COPIES = 3;
-
-  const buildItem = (circle, isClone) => {
+  const buildItem = (circle) => {
     const li = document.createElement('li');
     li.className = 'circle-item';
-    if (isClone) li.setAttribute('aria-hidden', 'true');
+    const isGabby = circle.name === 'בית הבובות של גבי';
     li.innerHTML = `
       <div class="circle">
         <img src="${circle.src}" alt="${circle.name}" loading="lazy" />
+        ${isGabby ? `<span class="circle-copyright" aria-hidden="true">
+          DreamWorks Gabby's Dollhouse &copy;<br/>DreamWorks Animation LLC. All rights reserved.
+        </span>` : ''}
       </div>
       <span class="circle-name">${circle.name}</span>
     `;
     return li;
   };
 
-  for (let i = 0; i < SET_COPIES; i++) {
-    CIRCLES.forEach((c) => track.appendChild(buildItem(c, i > 0)));
-  }
+  CIRCLES.forEach((c) => track.appendChild(buildItem(c)));
 }
 
 /* =====================================================
@@ -255,6 +261,11 @@ function renderEvents(city = 'eilat') {
         style="background-image: url('assets/bg${bgIndex}.png')">
         <div class="event-image-wrap">
           <img class="event-image" src="${artist.image}" alt="" loading="lazy" />
+          ${artist.key === 'dolls' ? `
+            <span class="event-copyright" aria-hidden="true">
+              DreamWorks Gabby's Dollhouse &copy;<br/>DreamWorks Animation LLC. All rights reserved.
+            </span>
+          ` : ''}
         </div>
         <span class="event-arrow" aria-hidden="true">
           <img src="${ASSETS.arrow}" alt="" />
@@ -296,18 +307,62 @@ function renderEvents(city = 'eilat') {
 
 /* =====================================================
    Update CTAs (sticky-bottom + inline banner + popup)
+   Text + href depend on (a) selected city and (b) whether the schedule
+   section is currently visible in the viewport.
    ===================================================== */
-function updateCtaForCity(city) {
-  const config = CITIES[city];
+function updateCtaButtons() {
+  const config = CITIES[currentCity];
   if (!config) return;
 
+  const text = scheduleVisible ? config.ctaBook : CTA_SCROLL_TEXT;
+
   document.querySelectorAll('[data-cta="city"]').forEach((el) => {
-    el.textContent = config.ctaShort;
-    if (el.tagName === 'A') el.href = config.dealUrl;
+    el.textContent = text;
+    el.dataset.state = scheduleVisible ? 'book' : 'scroll';
+    if (el.tagName === 'A') {
+      el.href = scheduleVisible ? config.dealUrl : '#schedule';
+    }
+  });
+}
+
+function updateCtaForCity(city) {
+  if (!CITIES[city]) return;
+  currentCity = city;
+  document.body.dataset.currentCity = city;
+  updateCtaButtons();
+}
+
+/* =====================================================
+   CTA behavior: smooth scroll when in "scroll" state,
+   default href navigation when in "book" state.
+   Also watches the schedule section with IntersectionObserver
+   so the button text/state stays in sync with the viewport.
+   ===================================================== */
+function setupCtaBehavior() {
+  document.querySelectorAll('[data-cta="city"]').forEach((el) => {
+    el.addEventListener('click', (e) => {
+      if (el.dataset.state !== 'book') {
+        /* Scroll mode — intercept and smooth-scroll to schedule */
+        e.preventDefault();
+        const target = document.getElementById('schedule');
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      /* else: book mode — let the browser follow the dealUrl normally */
+    });
   });
 
-  /* Track current city for popup CTA */
-  document.body.dataset.currentCity = city;
+  const schedule = document.getElementById('schedule');
+  if (!schedule || typeof IntersectionObserver === 'undefined') return;
+
+  /* `isIntersecting` is true when ANY part of the schedule section is
+     within the viewport. Once the user scrolls so that the schedule
+     completely leaves the viewport, we flip back to the scroll-prompt
+     copy. */
+  const observer = new IntersectionObserver(([entry]) => {
+    scheduleVisible = entry.isIntersecting;
+    updateCtaButtons();
+  }, { threshold: 0 });
+  observer.observe(schedule);
 }
 
 /* =====================================================
@@ -419,15 +474,6 @@ function setupPopup() {
   });
 }
 
-/* Pause marquee when tab hidden (saves CPU) */
-function setupVisibilityPause() {
-  const track = document.getElementById('circlesTrack');
-  if (!track) return;
-  document.addEventListener('visibilitychange', () => {
-    track.style.animationPlayState = document.hidden ? 'paused' : 'running';
-  });
-}
-
 /* =====================================================
    Init
    ===================================================== */
@@ -437,6 +483,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setupCityFilters();
   setupFaq();
   setupPopup();
-  setupVisibilityPause();
+  setupCtaBehavior();
   updateCtaForCity('eilat');
 });
