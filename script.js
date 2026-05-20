@@ -3,10 +3,10 @@
    ===================================================== */
 const ASSETS = {
   yuval: 'assets/yuval.png',
-  eden:  'assets/eden.png',
+  eden:  'assets/eden.webp',
   stav:  'assets/stav.png',
-  miki:  'assets/miki.png',
-  dolls: 'assets/dolls.png',
+  miki:  'assets/miki.webp',
+  dolls: 'assets/dolls.webp',
   arrow: 'assets/ArrowCircleUpLeft.png',
   logo:  'assets/logo-fattal.png',
   kipud: 'assets/kipud.png',
@@ -40,17 +40,17 @@ const CITIES = {
   eilat: {
     name: 'אילת',
     ctaBook: 'בחירת מלון לחופשת קיץ באילת',
-    dealUrl: 'https://www.fattal.co.il/deals/city/eilat-deals'
+    dealUrl: 'https://www.fattal.co.il/deals/category/eilat-summer-deals'
   },
   tiberias: {
     name: 'טבריה',
     ctaBook: 'בחירת מלון לחופשת קיץ בטבריה',
-    dealUrl: 'https://www.fattal.co.il/deals/city/tiberias-deals'
+    dealUrl: 'https://www.fattal.co.il/deals/category/tiberias-deals-august'
   },
   'dead-sea': {
     name: 'ים המלח',
     ctaBook: 'בחירת מלון לחופשת קיץ בים המלח',
-    dealUrl: 'https://www.fattal.co.il/city/dead-sea-hotels'
+    dealUrl: 'https://www.fattal.co.il/deals/category/dead-sea-deals-august'
   }
 };
 
@@ -214,16 +214,26 @@ function renderCircles() {
   const buildItem = (circle) => {
     const li = document.createElement('li');
     li.className = 'circle-item';
-    const isGabby = circle.name === 'בית הבובות של גבי';
-    li.innerHTML = `
-      <div class="circle">
-        <img src="${circle.src}" alt="${circle.name}" loading="lazy" />
-        ${isGabby ? `<span class="circle-copyright" aria-hidden="true">
-          DreamWorks Gabby's Dollhouse &copy;<br/>DreamWorks Animation LLC. All rights reserved.
-        </span>` : ''}
-      </div>
-      <span class="circle-name">${circle.name}</span>
-    `;
+    /* Tag each item with its Circle file number so we can target a
+       specific one in CSS (e.g. enlarge Circle5 to match the others). */
+    const m = circle.src.match(/Circle(\d+)\.png/i);
+    if (m) li.setAttribute('data-circle', m[1]);
+li.innerHTML = `
+  <div class="circle">
+
+    ${circle.name === 'בית הבובות של גבי' ? `
+      <span class="circle-copyright">
+        DreamWorks Gabby's Dollhouse ©<br>
+        DreamWorks Animation LLC. All rights reserved.
+      </span>
+    ` : ''}
+
+    <img src="${circle.src}" alt="${circle.name}" loading="lazy" />
+
+  </div>
+
+  <span class="circle-name">${circle.name}</span>
+`;
     return li;
   };
 
@@ -258,14 +268,9 @@ function renderEvents(city = 'eilat') {
         data-event-index="${EVENTS.indexOf(event)}"
         data-bg="${bgIndex}"
         data-artist="${artist.key}"
-        style="background-image: url('assets/bg${bgIndex}.png')">
+        style="background-image: url('assets/bg${bgIndex}.webp')">
         <div class="event-image-wrap">
           <img class="event-image" src="${artist.image}" alt="" loading="lazy" />
-          ${artist.key === 'dolls' ? `
-            <span class="event-copyright" aria-hidden="true">
-              DreamWorks Gabby's Dollhouse &copy;<br/>DreamWorks Animation LLC. All rights reserved.
-            </span>
-          ` : ''}
         </div>
         <span class="event-arrow" aria-hidden="true">
           <img src="${ASSETS.arrow}" alt="" />
@@ -275,6 +280,7 @@ function renderEvents(city = 'eilat') {
           <span class="day">${day}</span>
         </div>
         <div class="event-name">${artist.name}</div>
+        ${artist.key === 'dolls' ? `<span class="event-copyright" aria-hidden="true">DreamWorks Gabby's Dollhouse &copy;<br/>DreamWorks Animation LLC. All rights reserved.</span>` : ''}
       </button>
     `;
     list.appendChild(li);

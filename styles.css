@@ -180,11 +180,6 @@ a { text-decoration: none; color: inherit; }
   max-width: 420px;
 }
 
-/* Mobile shows the short generic description; desktop shows the long
-   list-of-artists version. Toggle handled per breakpoint. */
-.hero-description-mobile { display: block; }
-.hero-description-desktop { display: none; }
-
 /* ============================================
    Circles carousel (mobile = infinite marquee)
    ============================================ */
@@ -245,22 +240,29 @@ a { text-decoration: none; color: inherit; }
   display: block;
 }
 
+/* Circle5 (Gabby) is drawn smaller within its canvas than the others.
+   Scale the image up so the visible circle matches the rest of the row. */
+
+
 /* DreamWorks copyright overlay on the Gabby's Dollhouse circle (mobile carousel) */
 .circle-copyright {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 8px;
-  color: #FFFFFF;
-  font-size: 7px;
-  line-height: 1.2;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  color: #00A7B5;
+  font-size: 9px;
+  line-height: 1.05;
   text-align: center;
-  font-weight: 400;
+  font-weight: 700;
+
   direction: ltr;
-  letter-spacing: 0.02em;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+  letter-spacing: -0.05px;
+
   pointer-events: none;
-  padding: 0 6px;
+  z-index: 2;
 }
 
 /* Artist name under each circle (mobile carousel only) */
@@ -428,26 +430,92 @@ a { text-decoration: none; color: inherit; }
   pointer-events: none;
 }
 
-/* DreamWorks copyright overlay on the Gabby's Dollhouse card image */
+/* DreamWorks copyright on the Gabby card: sits BELOW the artist name,
+   right-aligned to it. The name itself is lifted on the dolls card to
+   make room. */
+.event-card[data-artist="dolls"] .event-name {
+  bottom: 56px;
+}
+
 .event-copyright {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 6px;
+  bottom: 12px;
+  /* Anchor the RIGHT edge at exactly the same 14px offset as the
+     .event-name title so the two right-flush. Explicit `right` (not
+     `inset-inline-start`) removes any ambiguity from the LTR direction
+     we set on this element. */
+  right: 14px;
+  /* Size to the natural width of the longest line so both lines stay
+     on a single row each (the <br> already enforces 2 lines).
+     max-width keeps the element from extending past the card's edge. */
+  width: max-content;
+  max-width: calc(100% - 28px);
   color: #FFFFFF;
-  font-size: 8.4px;
-  line-height: 1.2;
-  text-align: center;
+  font-size: 8px;
+  line-height: 1.1;
+  text-align: right;
   font-weight: 400;
   direction: ltr;
   letter-spacing: 0.02em;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow:
+    0 0 3px rgba(0, 0, 0, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.45);
   pointer-events: none;
-  padding: 0 4px;
+  z-index: 2;
+  white-space: normal;
+}
+
+@media (max-width: 767px) {
+  .event-card[data-artist="dolls"] .event-name {
+    bottom: 13px;
+  }
+}
+
+
+@media (max-width: 767px) {
+  .event-copyright {
+    left: 88px;
+    right: auto;
+    bottom: 10px;
+
+    transform: translateX(-50%);
+
+    font-size: 6px;
+    line-height: 1.05;
+
+    text-align: center;
+    white-space: nowrap;
+
+    font-weight: 700;
+
+    text-shadow:
+      0 0 4px rgba(0,0,0,0.65),
+      0 1px 3px rgba(0,0,0,0.75),
+      0 0 10px rgba(0,0,0,0.45);
+  }
 }
 
 @media (min-width: 768px) {
-  .event-copyright { font-size: 9.6px; bottom: 8px; }
+  .event-copyright {
+    left: 95px;
+    right: auto;
+    bottom: 8px;
+
+    transform: translateX(-50%);
+
+    font-size: 7px;
+    line-height: 1.1;
+
+    text-align: center;
+    white-space: nowrap;
+
+    font-weight: 700;
+
+text-shadow:
+  0 0 4px rgba(0,0,0,0.65),
+  0 1px 3px rgba(0,0,0,0.75),
+  0 0 10px rgba(0,0,0,0.45);
+  }
 }
 
 .event-arrow {
@@ -820,7 +888,7 @@ body.popup-open { overflow: hidden; }
      artists composite stacks below it. Simple, no absolute positioning. */
   .hero-area {
     background:
-      url('assets/HeaderBackground.png') center top / cover no-repeat,
+      url('assets/HeaderBackground.webp') center top / cover no-repeat,
       #7FB8E0;
   }
   .hero {
@@ -830,8 +898,6 @@ body.popup-open { overflow: hidden; }
   .hero h1 { font-size: 48px; }
   .hero-subtitle { font-size: 26px; margin-bottom: 20px; }
   .hero-description { font-size: 18px; max-width: 700px; }
-  .hero-description-mobile { display: none; }
-  .hero-description-desktop { display: block; }
 
   .circles-section {
     padding: 0;
@@ -862,8 +928,8 @@ body.popup-open { overflow: hidden; }
   /* DreamWorks copyright overlay on the Gabby's Dollhouse character
      inside hero-artists.png. Positioned with a percentage anchor for
      responsive scaling, then nudged left by 150px to sit directly
-     under Gabby. Layered text-shadow gives the small white text
-     enough contrast against the light-blue composite. */
+     under Gabby. Bold weight + lighter layered text-shadow gives the
+     small white text enough contrast against the light-blue composite. */
   .hero-artists-copyright {
     position: absolute;
     bottom: 3%;
@@ -873,13 +939,12 @@ body.popup-open { overflow: hidden; }
     font-size: 11px;
     line-height: 1.25;
     text-align: center;
-    font-weight: 400;
+    font-weight: 700;
     direction: ltr;
     letter-spacing: 0.02em;
     text-shadow:
-      0 0 4px rgba(0, 0, 0, 0.75),
-      0 1px 3px rgba(0, 0, 0, 0.85),
-      0 0 1px rgba(0, 0, 0, 0.9);
+      0 0 3px rgba(0, 0, 0, 0.45),
+      0 1px 2px rgba(0, 0, 0, 0.5);
     pointer-events: none;
     white-space: nowrap;
   }

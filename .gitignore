@@ -1,1 +1,3 @@
 .inspector/
+.DS_Store
+*_old.*
