@@ -125,14 +125,14 @@ const EVENTS = [
 
   /* ---------- טבריה ---------- */
   { city: 'tiberias', date: '4.8', day: 'שלישי', artistKey: 'dolls', slots: [
-    { time: '18:00', hotels: 'לאונרדו, U בוטיק כנרת, לאונרדו פלאזה (מיקום: לאונרדו פלאזה)' },
+    { time: '18:00', hotels: ' U בוטיק כנרת, לאונרדו פלאזה (מיקום: לאונרדו פלאזה)' },
     { time: '20:30', hotels: 'לאונרדו קלאב' }
   ]},
   { city: 'tiberias', date: '6.8', day: 'חמישי', artistKey: 'miki', slots: [
     { time: '18:00', hotels: 'לאונרדו פלאזה, U בוטיק כנרת (מיקום: לאונרדו פלאזה)' },
     { time: '20:30', hotels: 'לאונרדו קלאב' }
   ]},
-  { city: 'tiberias', date: '11.8', day: 'שלישי', artistKey: 'miki', slots: [
+  { city: 'tiberias', date: '11.8', day: 'שלישי', artistKey: 'dolls', slots: [
     { time: '18:00', hotels: 'לאונרדו פלאזה, U בוטיק כנרת (מיקום: לאונרדו פלאזה)' },
     { time: '20:30', hotels: 'לאונרדו קלאב' }
   ]},

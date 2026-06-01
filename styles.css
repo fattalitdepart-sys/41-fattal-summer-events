@@ -434,7 +434,7 @@ a { text-decoration: none; color: inherit; }
    right-aligned to it. The name itself is lifted on the dolls card to
    make room. */
 .event-card[data-artist="dolls"] .event-name {
-  bottom: 56px;
+  bottom: 12px;
 }
 
 .event-copyright {
